@@ -54,6 +54,7 @@ class MutasiPendudukController extends Controller
             'tanggal_mutasi' => 'required|date',
         ]);
         MutasiPenduduk::create($validated);
+        $this->logActivity('create', 'mutasi', null, 'Menambah data mutasi');
         return redirect()->route('mutasi.index')->with('success', 'Data mutasi penduduk berhasil ditambahkan!');
     }
 
@@ -94,6 +95,7 @@ class MutasiPendudukController extends Controller
             'tanggal_mutasi' => $request->tanggal_mutasi ?? now(),
             'keterangan' => 'Mutasi dari data penduduk',
         ]);
+        $this->logActivity('mutasi', 'penduduk', $pendudukId, 'Memutasi data penduduk');
 
         // Hapus dari tabel penduduk
         $penduduk->delete();
@@ -122,6 +124,7 @@ class MutasiPendudukController extends Controller
             'tanggal_mutasi' => $request->tanggal_mutasi,
             // Tambahkan kolom lain jika perlu, seperti jenis_kelamin, dll.
         ]);
+        $this->logActivity('mutasi', 'penduduk', $id, 'Memutasi data penduduk');
 
         // Hapus dari tabel penduduk
         $penduduk->delete();
@@ -163,6 +166,7 @@ class MutasiPendudukController extends Controller
         ]);
 
         $mutasi->update($validated);
+        $this->logActivity('update', 'mutasi', $mutasi->id, 'Memperbarui data mutasi');
 
         return redirect()->route('mutasi.index')->with('success', 'Data mutasi penduduk berhasil diperbarui!');
     }
@@ -187,6 +191,7 @@ class MutasiPendudukController extends Controller
         }
 
         $mutasi->delete();
+        $this->logActivity('delete', 'mutasi', $mutasi->id, 'Menghapus data mutasi');
         return redirect()->route('mutasi.index')->with('success', 'Data mutasi penduduk berhasil dihapus!');
     }
 }

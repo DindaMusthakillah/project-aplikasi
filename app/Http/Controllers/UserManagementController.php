@@ -54,6 +54,7 @@ class UserManagementController extends Controller
 
         $user->role = $validated['role'];
         $user->save();
+        $this->logActivity('update', 'user', $user->id, 'Mengubah role user');
 
         return redirect()->route('users.index')->with('success', 'Role user berhasil diperbarui.');
     }
@@ -75,6 +76,7 @@ class UserManagementController extends Controller
 
         $user->approved = (bool) $validated['approved'];
         $user->save();
+        $this->logActivity('update', 'user', $user->id, 'Mengubah status persetujuan user');
 
         return redirect()->route('users.index')->with('success', 'Status user berhasil diperbarui.');
     }
@@ -91,6 +93,7 @@ class UserManagementController extends Controller
         }
 
         $user->delete();
+        $this->logActivity('delete', 'user', $user->id, 'Menghapus user');
 
         return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
     }

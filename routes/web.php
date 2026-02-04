@@ -8,6 +8,8 @@ use App\Http\Controllers\MutasiPendudukController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 
@@ -45,6 +47,11 @@ Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->na
 Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
 Route::patch('/profile', [ProfileController::class, 'updateProfile'])->name('profile.update');
 Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+
+Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+Route::patch('/settings', [SettingsController::class, 'update'])->name('settings.update');
+
+Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit.index');
 
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

@@ -91,7 +91,13 @@
                 <span class="mr-2 d-none d-lg-inline text-gray-600 small">
                     {{ auth()->check() ? auth()->user()->name : 'Admin' }}
                 </span>
-                <img class="img-profile rounded-circle" src="{{ asset('img/undraw_profile.svg') }}">
+                @php
+                    $role = auth()->check() ? auth()->user()->role : null;
+                    $profileImage = $role === 'admin'
+                        ? asset('img/admin.jpeg')
+                        : asset('img/pegawai.png');
+                @endphp
+                <img class="img-profile rounded-circle" src="{{ $profileImage }}">
             </a>
             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                 aria-labelledby="userDropdown">

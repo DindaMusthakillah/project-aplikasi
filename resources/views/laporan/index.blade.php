@@ -5,11 +5,19 @@
     <div class="d-flex align-items-center justify-content-between mb-3">
         <h2 class="mb-0">Laporan</h2>
         <div class="d-flex">
-            <a href="{{ route('laporan.print.penduduk', ['dusun' => $dusun]) }}" class="btn btn-sm btn-primary mr-2">Print Penduduk</a>
-            <a href="{{ route('laporan.print.mutasi', ['status' => $status, 'tanggal' => $tanggal]) }}" class="btn btn-sm btn-warning mr-2">Print Mutasi</a>
-            <a href="{{ route('laporan.print.all', ['dusun' => $dusun, 'status' => $status, 'tanggal' => $tanggal]) }}" class="btn btn-sm btn-success">Print Semua</a>
+            @if(auth()->check() && auth()->user()->role === 'admin')
+                <a href="{{ route('laporan.print.penduduk', ['dusun' => $dusun]) }}" class="btn btn-sm btn-primary mr-2">Print Penduduk</a>
+                <a href="{{ route('laporan.print.mutasi', ['status' => $status, 'tanggal' => $tanggal]) }}" class="btn btn-sm btn-warning mr-2">Print Mutasi</a>
+                <a href="{{ route('laporan.print.all', ['dusun' => $dusun, 'status' => $status, 'tanggal' => $tanggal]) }}" class="btn btn-sm btn-success">Print Semua</a>
+            @else
+                <span class="text-muted small">Cetak laporan hanya untuk admin.</span>
+            @endif
         </div>
     </div>
+
+    @if(session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
 
     <div class="card shadow mb-4">
         <div class="card-header py-3">

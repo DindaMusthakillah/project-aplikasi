@@ -42,10 +42,10 @@
                     </div>
                 </td>
                 <td class="kop-text" style="vertical-align: middle;">
-                    <div>PEMERINTAH KABUPATEN</div>
-                    <div>KECAMATAN ................</div>
-                    <div>DESA ................</div>
-                    <div>Alamat: ..................................................</div>
+                    <div>{{ $kop['kabupaten'] }}</div>
+                    <div>{{ $kop['kecamatan'] }}</div>
+                    <div>{{ $kop['desa'] }}</div>
+                    <div>{{ $kop['alamat'] }}</div>
                 </td>
                 <td class="kop-logo"></td>
             </tr>

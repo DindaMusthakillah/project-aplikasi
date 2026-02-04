@@ -38,6 +38,18 @@
         </a>
     </li>
     @if(auth()->check() && auth()->user()->role === 'admin')
+    <li class="nav-item {{ Request::is('settings*') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('settings.index') }}">
+            <i class="fas fa-sliders-h"></i>
+            <span>Pengaturan Sistem</span>
+        </a>
+    </li>
+    <li class="nav-item {{ Request::is('audit-logs*') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('audit.index') }}">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Audit Log</span>
+        </a>
+    </li>
     <li class="nav-item {{ Request::is('users*') ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('users.index') }}">
             <i class="fas fa-user-cog"></i>

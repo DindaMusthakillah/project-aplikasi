@@ -75,6 +75,7 @@ class DataPendudukController extends Controller
         ]);
 
         DataPenduduk::create($validated);
+        $this->logActivity('create', 'penduduk', null, 'Menambah data penduduk');
 
         return redirect()->route('penduduk.index')->with('success', 'Data berhasil ditambahkan!');
     }
@@ -112,6 +113,7 @@ class DataPendudukController extends Controller
         ]);
 
         $penduduk->update($validated);
+        $this->logActivity('update', 'penduduk', $penduduk->id, 'Memperbarui data penduduk');
 
         return redirect()->route('penduduk.index')->with('success', 'Data penduduk berhasil diperbarui!');
     }
@@ -125,6 +127,7 @@ class DataPendudukController extends Controller
 
         $penduduk = DataPenduduk::findOrFail($id);
         $penduduk->delete();
+        $this->logActivity('delete', 'penduduk', $id, 'Menghapus data penduduk');
 
         return redirect()->route('penduduk.index')->with('success', 'Data penduduk berhasil dihapus!');
     }
