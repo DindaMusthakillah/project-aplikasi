@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Penduduk;
+use App\Models\DataPenduduk;
 use App\Models\MutasiPenduduk;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -11,15 +11,37 @@ class MutasiPendudukController extends Controller
 {
     public function index()
     {
-        $mutasi = MutasiPenduduk::all();
+        $query = MutasiPenduduk::query();
+        if (request()->has('kk') && request()->kk != '') {
+            $query->where('no_kk', 'LIKE', '%' . request()->kk . '%');
+        }
+        $orderMap = [
+            'Kepala Keluarga' => 1,
+            'Suami' => 2,
+            'Istri' => 3,
+            'Anak' => 4,
+            'Orang Tua' => 5,
+            'Famili Lain' => 6,
+            'Cucu' => 7,
+        ];
+
+        $mutasi = $query
+            ->orderBy('no_kk')
+            ->get()
+            ->sortBy(function ($item) use ($orderMap) {
+                $rank = $orderMap[$item->status_hubungan_dalam_keluarga] ?? 99;
+                return sprintf('%s-%02d-%s', $item->no_kk, $rank, $item->nama_lengkap);
+            })
+            ->groupBy('no_kk');
         return view('mutasi.index', compact('mutasi'));
     }
 
     public function createFromPenduduk($id)
     {
-        $penduduk = Penduduk::findOrFail($id);
+        $penduduk = DataPenduduk::findOrFail($id);
         return view('mutasi.create', compact('penduduk'));
     }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -33,11 +55,55 @@ class MutasiPendudukController extends Controller
         ]);
         MutasiPenduduk::create($validated);
         return redirect()->route('mutasi.index')->with('success', 'Data mutasi penduduk berhasil ditambahkan!');
-    } 
+    }
+
+    // Tambahkan method mutate untuk menangani tombol Mutasi langsung
+    public function mutate(Request $request, $pendudukId)
+    {
+        $penduduk = DataPenduduk::findOrFail($pendudukId);
+
+        // Validasi minimal (opsional, tambahkan jika perlu)
+        $request->validate([
+            'jenis_mutasi' => 'nullable|string',
+            'alamat_tujuan' => 'nullable|string',
+            'tanggal_mutasi' => 'nullable|date',
+        ]);
+
+        // Simpan ke tabel mutasi (isi semua kolom dari penduduk)
+        MutasiPenduduk::create([
+            'no_kk' => $penduduk->no_kk,
+            'nama_lengkap' => $penduduk->nama_lengkap,
+            'nik' => $penduduk->nik,
+            'jenis_kelamin' => $penduduk->jenis_kelamin,
+            'tempat_lahir' => $penduduk->tempat_lahir,
+            'tanggal_lahir' => $penduduk->tanggal_lahir,
+            'agama' => $penduduk->agama,
+            'pendidikan' => $penduduk->pendidikan,
+            'jenis_pekerjaan' => $penduduk->jenis_pekerjaan,
+            'golongan_darah' => $penduduk->golongan_darah,
+            'status_perkawinan' => $penduduk->status_perkawinan,
+            'tanggal_perkawinan' => $penduduk->tanggal_perkawinan,
+            'status_hubungan_dalam_keluarga' => $penduduk->status_hubungan_dalam_keluarga,
+            'kewarganegaraan' => $penduduk->kewarganegaraan,
+            'nama_ayah' => $penduduk->nama_ayah,
+            'nama_ibu' => $penduduk->nama_ibu,
+            'dusun' => $penduduk->dusun,
+            'alamat_asal' => $penduduk->dusun, // Gunakan dusun sebagai alamat asal
+            'alamat_tujuan' => $request->alamat_tujuan ?? 'Tidak diketahui',
+            'jenis_mutasi' => $request->jenis_mutasi ?? 'Pindah',
+            'tanggal_mutasi' => $request->tanggal_mutasi ?? now(),
+            'keterangan' => 'Mutasi dari data penduduk',
+        ]);
+
+        // Hapus dari tabel penduduk
+        $penduduk->delete();
+
+        return redirect()->route('mutasi.index')->with('success', 'Data penduduk berhasil dimutasi.');
+    }
 
     public function storeFromPenduduk(Request $request, $id)
     {
-        $penduduk = Penduduk::findOrFail($id);
+        $penduduk = DataPenduduk::findOrFail($id);
 
         $request->validate([
             'jenis_mutasi' => 'required',
@@ -50,11 +116,11 @@ class MutasiPendudukController extends Controller
             'no_kk' => $penduduk->no_kk,
             'nama_lengkap' => $penduduk->nama_lengkap,
             'nik' => $penduduk->nik,
-            'alamat_asal' => $penduduk->alamat_asal,
+            'alamat_asal' => $penduduk->dusun, // Perbaiki: gunakan dusun
             'alamat_tujuan' => $request->alamat_tujuan,
-                        'jenis_mutasi' => $request->jenis_mutasi,
+            'jenis_mutasi' => $request->jenis_mutasi,
             'tanggal_mutasi' => $request->tanggal_mutasi,
-
+            // Tambahkan kolom lain jika perlu, seperti jenis_kelamin, dll.
         ]);
 
         // Hapus dari tabel penduduk
@@ -62,26 +128,20 @@ class MutasiPendudukController extends Controller
 
         return redirect()->route('mutasi.index')->with('success', 'Data penduduk berhasil dimutasi.');
     }
-public function edit($id)
-{
-    $penduduk = MutasiPenduduk::findOrFail($id);
-    return view('mutasi.edit', compact('penduduk'));
-}
-protected $fillable = [
-    'no_kk', 'nama_lengkap', 'nik', 'jenis_kelamin', 'tempat_lahir', 'tanggal_lahir', 'agama',
-    'pendidikan', 'jenis_pekerjaan', 'golongan_darah', 'status_perkawinan',
-    'status_hubungan_dalam_keluarga', 'kewarganegaraan', 'nama_ayah', 'nama_ibu',
-    'dusun', 'alamat_tujuan', 'jenis_mutasi', 'tanggal_mutasi', 'keterangan'
-];
 
-    public function update(Request $request, $id)
+    public function edit(MutasiPenduduk $mutasi)
     {
-        $penduduk = MutasiPenduduk::findOrFail($id);
+        return view('mutasi.edit', compact('mutasi'));
+    }
 
+    // Hapus $fillable yang salah di sini
+
+    public function update(Request $request, MutasiPenduduk $mutasi)
+    {
         $validated = $request->validate([
             'no_kk' => 'required',
             'nama_lengkap' => 'required',
-            'nik' => 'required|unique:mutasi_penduduk,nik,' . $id,
+            'nik' => 'required|unique:mutasi_penduduk,nik,' . $mutasi->id,
             'jenis_kelamin' => 'required',
             'tempat_lahir' => 'required',
             'tanggal_lahir' => 'required|date',
@@ -98,24 +158,35 @@ protected $fillable = [
             'dusun' => 'required',
             'alamat_asal' => 'required',
             'alamat_tujuan' => 'required',
-            'jenis_mutasi' => 'required',
+            'status_mutasi' => 'required',
             'tanggal_mutasi' => 'required|date',
         ]);
 
-        $penduduk->update($validated);
+        $mutasi->update($validated);
 
         return redirect()->route('mutasi.index')->with('success', 'Data mutasi penduduk berhasil diperbarui!');
     }
-public function printAll()
-{
-    $dataMutasi = MutasiPenduduk::all();
-    $pdf = Pdf::loadView('mutasi.print', compact('dataMutasi'));
-    return $pdf->download('data_mutasi.pdf');
-}
-    public function show($id)
-{
-    // Supaya gak error, cukup redirect ke index aja
-    return redirect()->route('mutasi.index');
-}
-}
 
+    public function printAll()
+    {
+        $mutasi = MutasiPenduduk::all();
+        $pdf = Pdf::loadView('mutasi.print_all', compact('mutasi'));
+        return $pdf->download('data_mutasi_penduduk.pdf');
+    }
+
+    public function show($id)
+    {
+        // Supaya gak error, cukup redirect ke index aja
+        return redirect()->route('mutasi.index');
+    }
+
+    public function destroy(MutasiPenduduk $mutasi)
+    {
+        if (!auth()->check() || auth()->user()->role !== 'admin') {
+            return redirect()->route('mutasi.index')->with('error', 'Hanya admin yang bisa menghapus data.');
+        }
+
+        $mutasi->delete();
+        return redirect()->route('mutasi.index')->with('success', 'Data mutasi penduduk berhasil dihapus!');
+    }
+}

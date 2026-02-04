@@ -11,7 +11,7 @@
         <div class="form-group mt-2">
             <label>No KK</label>
             <input type="text" name="no_kk" class="form-control"
-                value="{{ old('no_kk', $penduduk->no_kk) }}" required>
+                value="{{ old('no_kk', $penduduk->no_kk) }}" required maxlength="16" pattern="\d{16}" inputmode="numeric" title="No KK harus 16 digit angka">
         </div>
 
         <div class="form-group mt-2">
@@ -23,7 +23,7 @@
         <div class="form-group mt-2">
             <label>NIK</label>
             <input type="text" name="nik" class="form-control"
-                value="{{ old('nik', $penduduk->nik) }}" required>
+                value="{{ old('nik', $penduduk->nik) }}" required maxlength="16" pattern="\d{16}" inputmode="numeric" title="NIK harus 16 digit angka">
         </div>
 
         <div class="form-group mt-2">
@@ -85,8 +85,8 @@
 
         <div class="form-group mt-2">
             <label>Golongan Darah</label>
-                        <select name="golongan_darah" class="form-control" required>
-                <option value="">-- Pilih Golongan Darah --</option>
+                        <select name="golongan_darah" class="form-control">
+                <option value="">-</option>
                 <option value="A" {{ old('golongan_darah', $penduduk->golongan_darah) == 'A' ? 'selected' : '' }}>A</option>
                 <option value="B" {{ old('golongan_darah', $penduduk->golongan_darah) == 'B' ? 'selected' : '' }}>B</option>
                 <option value="AB" {{ old('golongan_darah', $penduduk->golongan_darah) == 'AB' ? 'selected' : '' }}>AB</option>

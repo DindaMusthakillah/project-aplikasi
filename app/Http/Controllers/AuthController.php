@@ -18,6 +18,12 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
+            if (!auth()->user()->approved) {
+                Auth::logout();
+                return back()->withErrors([
+                    'email' => 'Akun menunggu persetujuan admin.',
+                ])->withInput();
+            }
             // kalau berhasil login, redirect ke dashboard
             return redirect()->route('dashboard');
         }
@@ -53,6 +59,8 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
+            'role' => 'pegawai',
+            'approved' => false,
         ]);
 
         return redirect()->route('login')->with('success', 'Akun berhasil dibuat, silakan login');

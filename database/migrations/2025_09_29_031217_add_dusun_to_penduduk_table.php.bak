@@ -9,20 +9,21 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-public function up()
+    public function up(): void
 {
-    Schema::table('mutasi_penduduk', function (Blueprint $table) {
-        $table->string('jenis_kelamin', 20)->nullable();
+    Schema::table('data_penduduks', function (Blueprint $table) {
+        $table->string('dusun')->after('nama_lengkap');
     });
 }
+
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::table('mutasi_penduduk', function (Blueprint $table) {
-            //
+        Schema::table('data_penduduks', function (Blueprint $table) {
+            $table->dropColumn('dusun');
         });
     }
 };

@@ -8,7 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>SB Admin 2 - Register</title>
+    <title>Halaman Register</title>
 
     <!-- Custom fonts for this template-->
     <link href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
@@ -27,7 +27,15 @@
             <div class="card-body p-0">
                 <!-- Nested Row within Card Body -->
                 <div class="row">
-                    <div class="col-lg-5 d-none d-lg-block bg-register-image"></div>
+                    <div class="col-lg-5 d-none d-lg-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #4e73df 0%, #224abe 100%); color: #fff;">
+                        <div class="text-center px-4">
+                            <div style="font-size: 36px; font-weight: 700; letter-spacing: 1px;">SIDUK</div>
+                            <div style="opacity: 0.9; margin-top: 6px;">Sistem Informasi Data Kependudukan</div>
+                            <div style="opacity: 0.8; margin-top: 18px; font-size: 13px;">
+                                Buat akun untuk mulai mengelola data penduduk dan mutasi.
+                            </div>
+                        </div>
+                    </div>
                     <div class="col-lg-7">
                         <div class="p-5">
                             <div class="text-center">
@@ -60,15 +68,7 @@
                                 <button type="submit" class="btn btn-primary btn-user btn-block">
                                     Register Account
                                 </button>
-                                <hr>
-                                <a href="#" class="btn btn-google btn-user btn-block">
-                                    <i class="fab fa-google fa-fw"></i> Register with Google
-                                </a>
-                                <a href="#" class="btn btn-facebook btn-user btn-block">
-                                    <i class="fab fa-facebook-f fa-fw"></i> Register with Facebook
-                                </a>
                             </form>
-
                             <hr>
                             <div class="text-center">
                                 <a class="small" href="{{ route('password.request') }}">Forgot Password?</a>

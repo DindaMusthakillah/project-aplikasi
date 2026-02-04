@@ -7,7 +7,7 @@
         @csrf
         <div class="form-group">
             <label>No KK</label>
-            <input type="text" name="no_kk" class="form-control" required>
+            <input type="text" name="no_kk" class="form-control" required maxlength="16" pattern="\d{16}" inputmode="numeric" title="No KK harus 16 digit angka">
         </div>
         <div class="form-group">
             <label>Nama Lengkap</label>
@@ -15,7 +15,7 @@
         </div>
         <div class="form-group">
             <label>NIK</label>
-            <input type="text" name="nik" class="form-control" required>
+            <input type="text" name="nik" class="form-control" required maxlength="16" pattern="\d{16}" inputmode="numeric" title="NIK harus 16 digit angka">
         </div>
         <div class="form-group">
             <label>Jenis Kelamin</label>
@@ -64,7 +64,8 @@
         </div>
         <div class="form-group">
             <label>Golongan Darah</label>
-            <select name="golongan_darah" class="form-control" required>
+            <select name="golongan_darah" class="form-control">
+                <option value="">-</option>
                 <option value="A">A</option>
                 <option value="B">B</option>
                 <option value="AB">AB</option>
@@ -81,7 +82,7 @@
         </div>
         <div class="form-group">
             <label>Tanggal Perkawinan</label>
-            <input type="date" name="tanggal_perkawinan" class="form-control" required>
+            <input type="date" name="tanggal_perkawinan" class="form-control">
         </div>
         <div class="form-group">
             <label>Status Hubungan Dalam Keluarga</label>

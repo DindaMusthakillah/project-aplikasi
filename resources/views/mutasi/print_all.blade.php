@@ -44,15 +44,15 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($dataMutasi as $index => $mutasi)
+            @foreach($mutasi as $index => $item)
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td>{{ $mutasi->nama_penduduk ?? '-' }}</td>
-                    <td>{{ $mutasi->alamat_asal ?? '-' }}</td>
-                    <td>{{ $mutasi->alamat_tujuan ?? '-' }}</td>
-                    <td>{{ $mutasi->jenis_mutasi ?? '-' }}</td>
-                    <td>{{ $mutasi->tanggal_mutasi ?? '-' }}</td>
-                    <td>{{ $mutasi->keterangan ?? '-' }}</td>
+                    <td>{{ $item->nama_lengkap ?? '-' }}</td>
+                    <td>{{ $item->alamat_asal ?? '-' }}</td>
+                    <td>{{ $item->alamat_tujuan ?? '-' }}</td>
+                    <td>{{ $item->status_mutasi ?? '-' }}</td>
+                    <td>{{ $item->tanggal_mutasi ?? '-' }}</td>
+                    <td>{{ $item->keterangan ?? '-' }}</td>
                 </tr>
             @endforeach
         </tbody>

@@ -160,11 +160,12 @@
 
         <div class="form-group mt-2">
             <label>Jenis Mutasi</label>
-            <select name="jenis_mutasi" class="form-control" required>
+            <select name="status_mutasi" class="form-control" required>
                 <option value="">-- Pilih Jenis Mutasi --</option>
-                <option value="Pindah" {{ old('jenis_mutasi', $mutasi->jenis_mutasi) == 'Pindah' ? 'selected' : '' }}>Pindah</option>
-                <option value="Meninggal" {{ old('jenis_mutasi', $mutasi->jenis_mutasi) == 'Meninggal' ? 'selected' : '' }}>Meninggal</option>
-                <option value="Datang" {{ old('jenis_mutasi', $mutasi->jenis_mutasi) == 'Datang' ? 'selected' : '' }}>Datang</option>
+                <option value="Pindah Keluar" {{ old('status_mutasi', $mutasi->status_mutasi) == 'Pindah Keluar' ? 'selected' : '' }}>Pindah Keluar</option>
+                <option value="Pindah Masuk" {{ old('status_mutasi', $mutasi->status_mutasi) == 'Pindah Masuk' ? 'selected' : '' }}>Pindah Masuk</option>
+                <option value="Meninggal" {{ old('status_mutasi', $mutasi->status_mutasi) == 'Meninggal' ? 'selected' : '' }}>Meninggal</option>
+                <option value="Lahir" {{ old('status_mutasi', $mutasi->status_mutasi) == 'Lahir' ? 'selected' : '' }}>Lahir</option>
             </select>
 
         </div>

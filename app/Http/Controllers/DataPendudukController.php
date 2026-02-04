@@ -13,16 +13,34 @@ class DataPendudukController extends Controller
     {
         $query = DataPenduduk::query();
 
-        // Filter berdasarkan dusun kalau ada
-        if ($request->has('dusun') && $request->dusun != '') {
-            $query->where('dusun', 'LIKE', '%' . $request->dusun . '%');
+        // Filter berdasarkan KK kalau ada
+        if ($request->has('kk') && $request->kk != '') {
+            $query->where('no_kk', 'LIKE', '%' . $request->kk . '%');
         }
 
-        $penduduk = $query->get();
+        $orderMap = [
+            'Kepala Keluarga' => 1,
+            'Suami' => 2,
+            'Istri' => 3,
+            'Anak' => 4,
+            'Orang Tua' => 5,
+            'Famili Lain' => 6,
+            'Cucu' => 7,
+        ];
+
+        $penduduk = $query
+            ->orderBy('no_kk')
+            ->get()
+            ->sortBy(function ($item) use ($orderMap) {
+                $rank = $orderMap[$item->status_hubungan_dalam_keluarga] ?? 99;
+                return sprintf('%s-%02d-%s', $item->no_kk, $rank, $item->nama_lengkap);
+            })
+            ->groupBy('no_kk');
 
         // Hitung jumlah laki-laki dan perempuan sesuai filter
-        $jumlahLaki = $query->clone()->where('jenis_kelamin', 'Laki-laki')->count();
-        $jumlahPerempuan = $query->clone()->where('jenis_kelamin', 'Perempuan')->count();
+        $jumlahLaki = (clone $query)->where('jenis_kelamin', 'Laki-laki')->count();
+        $jumlahPerempuan = (clone $query)->where('jenis_kelamin', 'Perempuan')->count();
+
 
         return view('penduduk.index', compact('penduduk', 'jumlahLaki', 'jumlahPerempuan'));
     }
@@ -37,9 +55,9 @@ class DataPendudukController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'no_kk' => 'required',
+            'no_kk' => 'required|digits:16',
             'nama_lengkap' => 'required',
-            'nik' => 'required|unique:data_penduduks',
+            'nik' => 'required|digits:16|unique:data_penduduks',
             'jenis_kelamin' => 'required',
             'tempat_lahir' => 'required',
             'tanggal_lahir' => 'required|date',
@@ -74,9 +92,9 @@ class DataPendudukController extends Controller
         $penduduk = DataPenduduk::findOrFail($id);
 
         $validated = $request->validate([
-            'no_kk' => 'required',
+            'no_kk' => 'required|digits:16',
             'nama_lengkap' => 'required',
-            'nik' => 'required|unique:data_penduduks,nik,' . $id,
+            'nik' => 'required|digits:16|unique:data_penduduks,nik,' . $id,
             'jenis_kelamin' => 'required',
             'tempat_lahir' => 'required',
             'tanggal_lahir' => 'required|date',
@@ -101,49 +119,70 @@ class DataPendudukController extends Controller
     // Hapus data
     public function destroy($id)
     {
+        if (!auth()->check() || auth()->user()->role !== 'admin') {
+            return redirect()->route('penduduk.index')->with('error', 'Hanya admin yang bisa menghapus data.');
+        }
+
         $penduduk = DataPenduduk::findOrFail($id);
         $penduduk->delete();
 
         return redirect()->route('penduduk.index')->with('success', 'Data penduduk berhasil dihapus!');
     }
- public function mutasi($id)
-{
-    $penduduk = DataPenduduk::find($id);
+    public function showMutasiForm($id)
+    {
+        $penduduk = DataPenduduk::find($id);
 
-    if (!$penduduk) {
-        return redirect()->route('penduduk.index')->with('error', 'Data penduduk tidak ditemukan.');
+        if (!$penduduk) {
+            return redirect()->route('penduduk.index')->with('error', 'Data penduduk tidak ditemukan.');
+        }
+
+        return view('penduduk.mutasi-form', compact('penduduk'));
     }
 
-    // Simpan data ke tabel mutasi_penduduk
-    MutasiPenduduk::create([
-        'no_kk' => $penduduk->no_kk,
-        'nama_lengkap' => $penduduk->nama_lengkap,
-        'nik' => $penduduk->nik,
-        'jenis_kelamin' => $penduduk->jenis_kelamin,
-        'tempat_lahir' => $penduduk->tempat_lahir,
-        'tanggal_lahir' => $penduduk->tanggal_lahir,
-        'agama' => $penduduk->agama,
-        'pendidikan' => $penduduk->pendidikan,
-        'jenis_pekerjaan' => $penduduk->jenis_pekerjaan,
-        'golongan_darah' => $penduduk->golongan_darah,
-        'status_perkawinan' => $penduduk->status_perkawinan,
-        'tanggal_perkawinan' => $penduduk->tanggal_perkawinan,
-        'status_hubungan_dalam_keluarga' => $penduduk->status_hubungan_dalam_keluarga,
-        'kewarganegaraan' => $penduduk->kewarganegaraan,
-        'nama_ayah' => $penduduk->nama_ayah,
-        'nama_ibu' => $penduduk->nama_ibu,
-        'dusun' => $penduduk->dusun,
-        'alamat_asal' => $penduduk->dusun,
-        'alamat_tujuan' => $penduduk->alamat_tujuan ?? 'Belum diisi',
-        'jenis_mutasi' => 'Pindah Keluar',
-        'keterangan' => 'Data dimutasi otomatis dari tabel penduduk',
-        'tanggal_mutasi' => now(),
-    ]);
+    public function mutasi(Request $request, $id)
+    {
+        $penduduk = DataPenduduk::find($id);
 
-    // Hapus data penduduk dari tabel asli
-    $penduduk->delete();
+        if (!$penduduk) {
+            return redirect()->route('penduduk.index')->with('error', 'Data penduduk tidak ditemukan.');
+        }
 
-    return redirect()->route('mutasi.index')->with('success', 'Data berhasil dimutasi ke menu Mutasi Penduduk.');
-}
+        // Validasi input dari form
+        $validated = $request->validate([
+            'alamat_tujuan' => 'required',
+            'jenis_mutasi' => 'nullable',
+            'tanggal_mutasi' => 'nullable|date',
+        ]);
 
+        // Simpan data ke tabel mutasi_penduduk
+        MutasiPenduduk::create([
+            'no_kk' => $penduduk->no_kk,
+            'nama_lengkap' => $penduduk->nama_lengkap,
+            'nik' => $penduduk->nik,
+            'jenis_kelamin' => $penduduk->jenis_kelamin,
+            'tempat_lahir' => $penduduk->tempat_lahir,
+            'tanggal_lahir' => $penduduk->tanggal_lahir,
+            'agama' => $penduduk->agama,
+            'pendidikan' => $penduduk->pendidikan,
+            'jenis_pekerjaan' => $penduduk->jenis_pekerjaan,
+            'golongan_darah' => $penduduk->golongan_darah,
+            'status_perkawinan' => $penduduk->status_perkawinan,
+            'tanggal_perkawinan' => $penduduk->tanggal_perkawinan,
+            'status_hubungan_dalam_keluarga' => $penduduk->status_hubungan_dalam_keluarga,
+            'kewarganegaraan' => $penduduk->kewarganegaraan,
+            'nama_ayah' => $penduduk->nama_ayah,
+            'nama_ibu' => $penduduk->nama_ibu,
+            'dusun' => $penduduk->dusun,
+            'alamat_asal' => $penduduk->dusun,
+            'alamat_tujuan' => $validated['alamat_tujuan'],
+            'status_mutasi' => $validated['jenis_mutasi'] ?? 'Pindah Keluar',
+            'tanggal_mutasi' => $validated['tanggal_mutasi'] ?? now(),
+            'keterangan' => 'Data dimutasi dari tabel penduduk',
+        ]);
+
+        // Hapus data penduduk dari tabel asli
+        $penduduk->delete();
+
+        return redirect()->route('mutasi.index')->with('success', 'Data berhasil dimutasi ke menu Mutasi Penduduk.');
+    }
 }
