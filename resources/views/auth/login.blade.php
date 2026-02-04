@@ -18,10 +18,22 @@
 
     <!-- Custom styles for this template-->
     <link href="{{ asset('css/sb-admin-2.min.css')}}" rel="stylesheet">
+    <style>
+        body.auth-bg {
+            background: linear-gradient(120deg, rgba(78, 115, 223, 0.55), rgba(28, 200, 138, 0.45), rgba(78, 115, 223, 0.35));
+            background-size: 200% 200%;
+            animation: gradientShift 18s ease-in-out infinite;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
 
 </head>
 
-<body class="bg-gradient-primary">
+<body class="auth-bg">
 
     <div class="container">
 
@@ -34,7 +46,7 @@
                     <div class="card-body p-0">
                         <!-- Nested Row within Card Body -->
                         <div class="row">
-                            <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #4e73df 0%, #224abe 100%); color: #fff;">
+                            <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #7aa2f7 0%, #5b7cda 60%, #4a62c0 100%); color: #fff;">
                                 <div class="text-center px-4">
                                     <div style="font-size: 42px; font-weight: 700; letter-spacing: 1px;">SIDUK</div>
                                     <div style="opacity: 0.9; margin-top: 6px;">Sistem Informasi Data Kependudukan</div>
